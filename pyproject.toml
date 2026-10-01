@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iptv-fingerprint"
+version = "0.1.0"
+description = "Identify whether an IPTV provider is a unique source or a rebrand of another service"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = ["requests>=2.28"]
+
+[project.scripts]
+iptv-fingerprint = "iptv_fingerprint.cli:main"
+
+[tool.setuptools]
+packages = ["iptv_fingerprint", "iptv_fingerprint.analysis", "iptv_fingerprint.collectors"]
+
+[tool.setuptools.package-data]
+iptv_fingerprint = ["web.html"]
+"iptv_fingerprint.analysis" = ["known_providers.json"]

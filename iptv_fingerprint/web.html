@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IPTV Fingerprint</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f6f6f4; --panel: #fff; --text: #1d1d1b; --muted: #6b6b66;
+    --line: #e2e2dd; --accent: #2f5bd3; --term: #111; --term-text: #d9d9d4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #161615; --panel: #1f1f1d; --text: #ececE8; --muted: #9a9a94; --line: #33332f; --accent: #7c9cf5; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 40px; display: grid; grid-template-columns: 220px 1fr; gap: 24px; }
+  @media (max-width: 760px) { main { grid-template-columns: 1fr; } }
+  h1 { font-size: 18px; margin: 0 0 16px; }
+  nav button { display: block; width: 100%; text-align: left; padding: 8px 12px; margin-bottom: 2px; border: 0; border-radius: 8px; background: none; color: var(--text); font: inherit; cursor: pointer; }
+  nav button:hover { background: var(--line); }
+  nav button[aria-current="true"] { background: var(--accent); color: #fff; }
+  nav hr { border: 0; border-top: 1px solid var(--line); margin: 10px 0; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; min-width: 0; }
+  section h2 { margin: 0 0 4px; font-size: 20px; }
+  .help { color: var(--muted); margin: 0 0 16px; }
+  form { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px 16px; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  label.check { flex-direction: row; align-items: center; gap: 8px; color: var(--text); font-size: 14px; }
+  input[type=text], input[type=password], input[type=url], input[type=number] {
+    font: inherit; color: var(--text); padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg);
+  }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .actions { grid-column: 1 / -1; display: flex; gap: 12px; align-items: center; }
+  .run { padding: 9px 20px; border: 0; border-radius: 8px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  .run:disabled { opacity: .5; cursor: progress; }
+  #status { color: var(--muted); font-size: 13px; }
+  pre { margin: 20px 0 0; background: var(--term); color: var(--term-text); border-radius: 10px; padding: 16px; min-height: 240px; max-height: 60vh;
+        overflow: auto; font: 13px/1.5 ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace; white-space: pre; }
+  pre:empty::before { content: "Output will appear here."; color: #777; }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>IPTV Fingerprint</h1>
+    <nav id="nav" aria-label="Commands"></nav>
+  </div>
+  <section>
+    <h2 id="title"></h2>
+    <p class="help" id="help"></p>
+    <form id="form">
+      <div id="fields" style="display: contents"></div>
+      <div class="actions">
+        <button class="run" id="run" type="submit">Run</button>
+        <span id="status" role="status"></span>
+      </div>
+    </form>
+    <pre id="out" aria-live="polite"></pre>
+  </section>
+</main>
+<script>
+// [flag, label, type, required, placeholder]; type "list" = comma-separated positional values
+const F = {
+  name: ["--name", "Scan name", "text", true, "e.g. mystery"],
+  url: ["--url", "Server URL", "url", true, "http://server.com:8080"],
+  user: ["--user", "Username", "text", true],
+  pass: ["--pass", "Password", "password", true],
+  dns: ["--dns", "Extra domains (comma-separated)", "text", false, "dns1.example.com, dns2.example.com"],
+  epg: ["--epg", "EPG URLs (comma-separated)", "text", false],
+  port: ["--port", "HTTP port (optional)", "number", false, "80"],
+};
+const COMMANDS = {
+  collect: { label: "Identify a provider", help: "Scan a provider with its Xtream login, save it, and match it against known providers. Takes a few minutes.",
+    fields: [F.name, F.url, F.user, F.pass, F.dns, F.epg, ["--stream-test", "Also analyze a sample stream", "checkbox"]] },
+  match: { label: "Re-match a scan", help: "Match a saved scan against known providers without re-scanning.", fields: [F.name] },
+  compare: { label: "Compare two scans", help: "Side-by-side overlap of two saved scans.",
+    fields: [["--a", "First scan", "text", true], ["--b", "Second scan", "text", true]] },
+  investigate: { label: "Investigate a domain", help: "DNS, SSL, WHOIS and OSINT lookups. No login needed.",
+    fields: [["--domain", "Domain", "text", true, "provider.example.com"], F.port] },
+  list: { label: "Saved scans", help: "Everything you've scanned so far.", fields: [] },
+  sep1: null,
+  enrich: { label: "Add domains / EPG", help: "Investigate extra domains or add EPG URLs to a saved scan.",
+    fields: [F.name, F.dns, F.epg, F.port, ["--whois", "Also run WHOIS on new domains", "checkbox"]] },
+  promote: { label: "Save as known provider", help: "Add a saved scan to your known providers, so future scans match against it.",
+    fields: [F.name, ["--id", "Provider ID", "text", true, "e.g. mystery-tv"], ["--display", "Display name", "text", true, "e.g. Mystery TV"], F.dns] },
+  merge: { label: "Merge scans", help: "Fold one scan into another as an alias.",
+    fields: [["--source", "Merge from", "text", true], ["--into", "Merge into", "text", true], ["--delete-source", "Delete the source scan afterwards", "checkbox"]] },
+  alias: { label: "Aliases", help: "Add or remove alias names for a saved scan.",
+    fields: [F.name, ["alias", "Aliases (comma-separated)", "list", true], ["--remove", "Remove instead of add", "checkbox"]] },
+  export: { label: "Export channels to CSV", help: "Download every category and channel to a CSV file in your data folder.",
+    fields: [F.name, F.url, F.user, F.pass] },
+  delete: { label: "Delete a scan", help: "Permanently remove a saved scan.", fields: [F.name] },
+};
+
+const $ = (id) => document.getElementById(id);
+let current;
+
+function show(cmd) {
+  current = cmd;
+  const c = COMMANDS[cmd];
+  $("title").textContent = c.label;
+  $("help").textContent = c.help;
+  $("fields").replaceChildren(...c.fields.map(([flag, label, type, required, placeholder]) => {
+    const l = document.createElement("label");
+    const i = document.createElement("input");
+    i.name = flag;
+    i.type = type === "list" ? "text" : type;
+    i.required = !!required;
+    if (placeholder) i.placeholder = placeholder;
+    if (type === "password") i.autocomplete = "off";
+    if (type === "checkbox") { l.className = "check"; l.append(i, label); }
+    else l.append(label, i);
+    return l;
+  }));
+  for (const b of $("nav").querySelectorAll("button")) b.setAttribute("aria-current", b.dataset.cmd === cmd);
+  try { localStorage.setItem("cmd", cmd); } catch {}
+  $("fields").querySelector("input")?.focus();
+}
+
+for (const [cmd, c] of Object.entries(COMMANDS)) {
+  if (!c) { $("nav").append(document.createElement("hr")); continue; }
+  const b = document.createElement("button");
+  b.type = "button"; b.dataset.cmd = cmd; b.textContent = c.label;
+  b.onclick = () => show(cmd);
+  $("nav").append(b);
+}
+
+$("form").onsubmit = async (e) => {
+  e.preventDefault();
+  const argv = [current];
+  for (const [flag, , type] of COMMANDS[current].fields) {
+    const i = $("form").elements[flag];
+    if (type === "checkbox") { if (i.checked) argv.push(flag); }
+    else if (type === "list") argv.push(...i.value.split(",").map((s) => s.trim()).filter(Boolean));
+    else if (i.value.trim()) argv.push(flag, i.value.trim());
+  }
+  if (current === "delete" && !confirm(`Delete the saved scan "${$("form").elements["--name"].value}"?`)) return;
+
+  const out = $("out");
+  out.textContent = "";
+  $("run").disabled = true;
+  $("status").textContent = "Running…";
+  try {
+    const res = await fetch("/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(argv) });
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const atBottom = out.scrollHeight - out.scrollTop - out.clientHeight < 40;
+      out.textContent += dec.decode(value, { stream: true });
+      if (atBottom) out.scrollTop = out.scrollHeight;
+    }
+    $("status").textContent = res.ok ? "Done." : `Error ${res.status}`;
+  } catch (err) {
+    $("status").textContent = "Lost connection. Is the app still running?";
+  } finally {
+    $("run").disabled = false;
+  }
+};
+
+let saved = null;
+try { saved = localStorage.getItem("cmd"); } catch {}
+show(COMMANDS[saved] ? saved : "collect");
+</script>
+</body>
+</html>

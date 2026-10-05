@@ -6,6 +6,59 @@ It runs as a small app on your own computer that you use in your web browser. Yo
 
 ---
 
+# Web app (front-facing site)
+
+This repository also contains a full web version of the tool: a public landing page plus the complete browser UI, backed by Convex. It covers every CLI feature — identify/collect with a live job console, saved scans, scan detail with verdicts and signals, re-match, compare, investigate, enrich, promote, merge, aliases and CSV export.
+
+## Run it
+
+Requires [Bun](https://bun.sh).
+
+```
+bun install
+bun run dev
+```
+
+`bun run dev` starts Convex (local backend + function push) and Vite together; the site is served on the port Vite prints (5173 by default). Other scripts:
+
+| Script | What it does |
+|---|---|
+| `bun run dev` | Convex + Vite dev server |
+| `bun run build` | Production build to `dist/` |
+| `bun run typecheck` | `tsc -b --noEmit` |
+| `bun convex dev --once` | Push Convex functions / regenerate `src/convex/_generated` |
+
+## Routes
+
+| Route | Page |
+|---|---|
+| `/#/` | Landing page (public) |
+| `/#/app` | Identify a provider (form + live scan console) |
+| `/#/app/scans` | Saved scans list |
+| `/#/app/scans/:name` | Scan detail: verdicts, signals, stats, domains, CSV export, re-match / alias / promote / enrich / merge / delete |
+| `/#/app/compare` | Side-by-side comparison of two saved scans |
+| `/#/app/investigate` | Domain infrastructure lookup |
+| `/#/app/providers` | Known provider profiles (promote re-scores all scans) |
+
+Routing uses `HashRouter`, so any static host works without server-side rewrites.
+
+## Architecture
+
+- **Frontend:** Vite + React + TypeScript + Tailwind, `src/pages/`, `src/components/`.
+- **Backend:** Convex functions in `src/convex/` (scans, channels, providers, jobs, plus Node actions for collect/enrich/investigate). `convex.json` points Convex at `src/convex`.
+- **Matching logic** is ported 1:1 from the Python package into `src/lib/` (`match.ts`, `compare.ts`, `providers.ts`, `collectors.ts`, `csv.ts`, …) so web and CLI verdicts agree.
+
+## Verification scripts
+
+| Script | What it checks |
+|---|---|
+| `bun scripts/check-logic.ts` | Ported scoring matches the Python behaviour (12 checks) |
+| `bun scripts/e2e-mock.ts` | Full collect → save → match pipeline against a mock Xtream server (run `python3 scripts/mock-xtream.py` first) |
+| `bun scripts/visual-check.ts` | Loads every route headless, captures console/network errors, writes screenshots to `scripts/shots/` |
+| `bun scripts/ui-verify.ts` | Fails on console errors, layout overflow (desktop + mobile), missing verdicts or broken CTAs |
+
+---
+
 # Setup
 
 ## Windows setup (step by step)

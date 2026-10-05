@@ -5,3 +5,10 @@ fingerprints.json
 *.egg-info/
 build/
 dist/
+
+# Web app
+node_modules/
+isolate/
+scripts/shots/
+
+.env.local

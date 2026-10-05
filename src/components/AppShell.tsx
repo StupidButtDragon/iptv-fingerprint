@@ -1,7 +1,7 @@
 import { Crosshair, Database, GitCompare, ListChecks, Radar } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import BannerSlot from "./BannerSlot";
-import { DonateButton, GitHubMark, LogoMark } from "./ui";
+import { DonateButton, LogoMark } from "./ui";
 
 const NAV = [
   { to: "/app", end: true, icon: Crosshair, label: "Identify" },
@@ -72,15 +72,6 @@ export default function AppShell() {
             <p className="leading-4">
               Your provider logins are sent only to the provider itself — never anywhere else.
             </p>
-            <a
-              href="https://github.com/cage47/iptv-fingerprint"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-ink-400 transition-colors hover:text-signal-400"
-            >
-              <GitHubMark className="h-3.5 w-3.5" />
-              cage47/iptv-fingerprint
-            </a>
             <DonateButton />
           </div>
         </div>

@@ -3,7 +3,7 @@ import { ArrowRight, Database, Fingerprint, Network, ScanSearch, Server, ShieldC
 import { Link } from "react-router-dom";
 import { builtinProviders } from "../lib/providers";
 import BannerSlot from "../components/BannerSlot";
-import { DonateButton, GitHubMark, LogoMark } from "../components/ui";
+import { DonateButton, LogoMark } from "../components/ui";
 
 const reveal = {
   initial: { opacity: 0, y: 18 },
@@ -94,7 +94,6 @@ function MatchCard() {
           <span className="text-ink-500">(score: 114)</span>
         </div>
         <div className="space-y-1 pl-3 text-[11.5px] text-ink-300">
-          <div>DNS hostname matches known entry: line.hydrax.club</div>
           <div>Stream ID overlap: 30/30 sample IDs match (100%)</div>
           <div>Category ID overlap: 30/30 (100%)</div>
           <div>Shared logo domains: 103.176.90.118, line.cdn.trex</div>
@@ -124,15 +123,6 @@ export default function Landing() {
             <a href="#how" className="transition-colors hover:text-ink-100">How it works</a>
             <a href="#signals" className="transition-colors hover:text-ink-100">Signals</a>
             <a href="#providers" className="transition-colors hover:text-ink-100">Providers</a>
-            <a
-              href="https://github.com/cage47/iptv-fingerprint"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-ink-100"
-            >
-              <GitHubMark className="h-4 w-4" />
-              GitHub
-            </a>
           </nav>
           <Link
             to="/app"
@@ -172,14 +162,6 @@ export default function Landing() {
                 >
                   Identify a provider <ArrowRight className="h-4 w-4" />
                 </Link>
-                <a
-                  href="https://github.com/cage47/iptv-fingerprint"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg border border-ink-600 bg-ink-900 px-5 py-3 text-sm font-medium text-ink-200 transition-colors hover:border-signal-600 hover:text-signal-400"
-                >
-                  <GitHubMark className="h-4 w-4" /> View source
-                </a>
               </div>
               <dl className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-ink-800 pt-5">
                 {[
@@ -413,14 +395,6 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-5">
             <DonateButton />
-            <a
-              href="https://github.com/cage47/iptv-fingerprint"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-signal-400"
-            >
-              <GitHubMark className="h-3.5 w-3.5" /> Source on GitHub
-            </a>
           </div>
         </div>
       </footer>

@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme {
+  /* Ink — deep, slightly green-black console palette */
+  --color-ink-950: #070a09;
+  --color-ink-900: #0b100e;
+  --color-ink-850: #0f1513;
+  --color-ink-800: #141b18;
+  --color-ink-700: #1d2723;
+  --color-ink-600: #2a3733;
+  --color-ink-500: #3d4c47;
+  --color-ink-400: #5c6b65;
+  --color-ink-300: #8a9993;
+  --color-ink-200: #b7c3be;
+  --color-ink-100: #e3eae7;
+
+  /* Signal — phosphor green for primary actions and MATCH verdicts */
+  --color-signal-300: #86efac;
+  --color-signal-400: #4ade80;
+  --color-signal-500: #2fd477;
+  --color-signal-600: #17b362;
+  --color-signal-950: #06281a;
+
+  /* Secondary verdict hues */
+  --color-info-400: #56c8ff;
+  --color-info-500: #2eb3e8;
+  --color-info-950: #06222e;
+  --color-amber-400: #ffb84d;
+  --color-amber-500: #f5a524;
+  --color-amber-950: #2b1c04;
+  --color-alert-400: #ff7a76;
+  --color-alert-500: #ef5350;
+  --color-alert-950: #2c0b0a;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo,
+    Consolas, monospace;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background-color: var(--color-ink-950);
+  color: var(--color-ink-100);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle CRT scanline veil over the whole app */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.014) 0px,
+    rgba(255, 255, 255, 0.014) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+@layer components {
+  /* Faint blueprint grid for hero/section backgrounds */
+  .grid-bg {
+    background-image: linear-gradient(
+        to right,
+        rgba(47, 212, 119, 0.05) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, rgba(47, 212, 119, 0.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 75%);
+  }
+
+  .terminal {
+    background: #050807;
+    border: 1px solid var(--color-ink-700);
+    border-radius: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #b9d7c8;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .glow-signal {
+    box-shadow: 0 0 24px rgba(47, 212, 119, 0.18);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 18px rgba(47, 212, 119, 0.35);
+  }
+}
+
+/* Thin console-style scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-600) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-ink-600);
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.animate-sweep {
+  animation: sweep 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sweep {
+    animation: none;
+  }
+}

@@ -2,7 +2,8 @@ import { motion } from "framer-motion";
 import { ArrowRight, Database, Fingerprint, Network, ScanSearch, Server, ShieldCheck, GitCompare, FileDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { builtinProviders } from "../lib/providers";
-import { GitHubMark, LogoMark } from "../components/ui";
+import BannerSlot from "../components/BannerSlot";
+import { DonateButton, GitHubMark, LogoMark } from "../components/ui";
 
 const reveal = {
   initial: { opacity: 0, y: 18 },
@@ -214,6 +215,8 @@ export default function Landing() {
         </div>
       </section>
 
+      <BannerSlot id="landing-top" />
+
       {/* How it works */}
       <section id="how" className="border-t border-ink-800 bg-ink-900/40">
         <div className="mx-auto max-w-6xl px-5 py-20">
@@ -394,6 +397,8 @@ export default function Landing() {
         </div>
       </section>
 
+      <BannerSlot id="landing-bottom" />
+
       {/* Footer */}
       <footer className="border-t border-ink-800">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-5 py-8 text-xs text-ink-500 sm:flex-row sm:items-center">
@@ -406,14 +411,17 @@ export default function Landing() {
               </code>
             </span>
           </div>
-          <a
-            href="https://github.com/cage47/iptv-fingerprint"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 transition-colors hover:text-signal-400"
-          >
-            <GitHubMark className="h-3.5 w-3.5" /> Source on GitHub
-          </a>
+          <div className="flex items-center gap-5">
+            <DonateButton />
+            <a
+              href="https://github.com/cage47/iptv-fingerprint"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 transition-colors hover:text-signal-400"
+            >
+              <GitHubMark className="h-3.5 w-3.5" /> Source on GitHub
+            </a>
+          </div>
         </div>
       </footer>
     </div>

@@ -1,6 +1,7 @@
 import { Crosshair, Database, GitCompare, ListChecks, Radar } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { GitHubMark, LogoMark } from "./ui";
+import BannerSlot from "./BannerSlot";
+import { DonateButton, GitHubMark, LogoMark } from "./ui";
 
 const NAV = [
   { to: "/app", end: true, icon: Crosshair, label: "Identify" },
@@ -80,6 +81,7 @@ export default function AppShell() {
               <GitHubMark className="h-3.5 w-3.5" />
               cage47/iptv-fingerprint
             </a>
+            <DonateButton />
           </div>
         </div>
       </aside>
@@ -88,6 +90,7 @@ export default function AppShell() {
         <div className="mx-auto max-w-5xl px-5 py-7 lg:px-8">
           <Outlet />
         </div>
+        <BannerSlot id="app-footer" />
       </main>
     </div>
   );

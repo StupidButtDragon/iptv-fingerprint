@@ -1,4 +1,6 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { Heart } from "lucide-react";
+import { donateUrl } from "../lib/site";
 
 // ---------------------------------------------------------------------------
 // Primitives
@@ -247,6 +249,44 @@ export function LogoMark({ className = "h-7 w-7" }: { className?: string }) {
       <path d="M6 21c3.5 0 3.5-10 7-10s3.5 10 7 10 3.5-10 6-10" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
       <circle cx="16" cy="16" r="2.4" fill="currentColor" />
     </svg>
+  );
+}
+
+/**
+ * Small Donate button shown in the landing footer and the app sidebar.
+ * Uses `donateUrl` from src/lib/site.ts: while that is empty the button is
+ * dimmed and shows a "coming soon" hint instead of navigating.
+ */
+export function DonateButton({ className = "" }: { className?: string }) {
+  const body = (
+    <>
+      <Heart className="h-3.5 w-3.5" />
+      <span>Donate</span>
+    </>
+  );
+
+  if (!donateUrl) {
+    return (
+      <span
+        title="Donate link coming soon"
+        aria-label="Donate — link coming soon"
+        className={`inline-flex cursor-default items-center gap-1.5 text-ink-600 ${className}`}
+      >
+        {body}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={donateUrl}
+      target="_blank"
+      rel="noreferrer noopener"
+      aria-label="Donate to this project"
+      className={`inline-flex items-center gap-1.5 text-ink-400 transition-colors hover:text-alert-400 ${className}`}
+    >
+      {body}
+    </a>
   );
 }
 

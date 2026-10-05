@@ -48,6 +48,22 @@ Routing uses `HashRouter`, so any static host works without server-side rewrites
 - **Backend:** Convex functions in `src/convex/` (scans, channels, providers, jobs, plus Node actions for collect/enrich/investigate). `convex.json` points Convex at `src/convex`.
 - **Matching logic** is ported 1:1 from the Python package into `src/lib/` (`match.ts`, `compare.ts`, `providers.ts`, `collectors.ts`, `csv.ts`, …) so web and CLI verdicts agree.
 
+## Advertising banner slots
+
+Three slots are built in for HTML advertising banners:
+
+| Slot | Placement |
+|---|---|
+| `landing-top` | Between the hero and "How it works" on the landing page |
+| `landing-bottom` | Above the footer on the landing page |
+| `app-footer` | Bottom of every page under `/#/app` |
+
+Paste the advertiser's HTML snippet (iframe, image, styled `<div>`, or ad-network loader with its own `<script>`) between the backticks of that slot in `src/lib/banners.ts`. Empty slots render nothing, so the site looks unchanged until you add something. Scripts in the snippet are executed by the `BannerSlot` component (`src/components/BannerSlot.tsx`), which also adds a small "Advertisement" caption. To add another placement, extend `BannerSlotId`, add the key, and render `<BannerSlot id="…" />` where you want it.
+
+## Donate button
+
+A small **Donate** button sits in the landing footer (next to "Source on GitHub") and at the bottom of the app sidebar. It reads `donateUrl` from `src/lib/site.ts`: while that is empty the button is dimmed and shows a "coming soon" hint instead of navigating, so the site ships placeholder-ready. Paste the final link between the backticks and the buttons go live in both places at once.
+
 ## Verification scripts
 
 | Script | What it checks |
